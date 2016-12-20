@@ -1,0 +1,154 @@
+.center {
+	text-align:center;
+}
+
+.table {
+	display:table;
+}
+
+.tr {
+	display:table-row;
+}
+
+.td {
+	display:table-cell;
+}
+
+#adedit .page {
+	display:none;
+}
+
+#adedit .p2 .templates {
+	display:inline-block;
+}
+
+#adedit .p2 table {
+	width:1px;
+}
+
+#adedit .p2 td {
+	vertical-align:top;
+}
+
+#adedit .p2 .banner {
+	box-sizing:border-box;	
+	float:left;
+	background-color:#eee;
+	border:1px solid #999;
+	cursor:pointer;
+	padding: 9px 14px;
+	text-align:left;
+	margin:10px;
+}
+
+#adedit .p2 .banner[data-sel="1"] {
+	background-color:#d9edf7;
+	border:1px solid #428bca;
+}
+
+#adedit .p2 td {
+	padding:0 !important;
+}
+
+#adedit .p2 .cont1 {
+	display:block;
+	float:left;
+	width:768px;
+}
+
+#adedit .p2 [data-id="b160x600"] {
+	width:160px;
+	height:600px;
+}
+
+#adedit .p2 [data-id="b728x90"] {
+	width:728px;
+	height:90px;
+}
+
+#adedit .p2 [data-id="b468x60"] {
+	width:468px;
+	height:60px;
+}
+
+#adedit .p2 [data-id="b240x400"] {
+	width:240px;
+	height:400px;
+}
+
+
+#adedit .p3 .editbody {
+	width:100%;
+}
+
+#adedit .p3 .toolpanels {
+	width:100%;
+}
+
+#adedit .p3 .workarea {
+	position:relative;
+	box-sizing:border-box;	
+	background:center center no-repeat #eee;
+	background-size:cover;
+	border:1px solid #999;
+	margin:0 auto 10px 0;
+}
+
+#adedit .p3 .td {
+	vertical-align:top;
+}
+
+#adedit .p3 .landscape .banner {
+	width:250px;
+}
+
+#adedit .p3 .img {
+	width:33%;
+}
+
+#adedit .p3 .img td, #adedit .p3 .img th {
+	text-align:center;
+}
+
+#adedit .p3  .ico {
+	display:inline-block;
+	border:2px solid #ffffff;
+	background:center center no-repeat #eee;
+	background-size:cover;
+	cursor:pointer;
+}
+
+#adedit .p3  .ico[data-sel="1"] {
+	border:2px solid #428bca;
+}
+
+#adedit .p3 [data-id="b160x600"] .ico {
+	width:16px;
+	height:60px;
+}
+
+#adedit .p3 [data-id="b728x90"]  .ico {
+	width:120px;
+	height:15px;
+}
+
+#adedit .p3 [data-id="b468x60"]  .ico {
+	width:115px;
+	height:15px;
+}
+
+#adedit .p3 [data-id="b240x400"]  .ico {
+	width:32px;
+	height:50px;
+}
+
+#adedit .p3  .logodrag {
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:1;
+}
+
+#adedit .p3  .logodrag img {
+	display:block;
+}
