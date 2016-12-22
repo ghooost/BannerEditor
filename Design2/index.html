@@ -94,8 +94,37 @@
 
 
 		<div class="table toolpanels">
+			<form><input type="file" id="newimg" class="hiddenfile"></form>
 			<div class="tr">
-				<div class="td texts">Text editors</div>
+				<div class="td layers">
+<!--					
+					<div class="textslist">
+						<div class="item">
+							<p>Шубы!</p>	
+						</div>
+						<div class="item" data-sel="1">
+							<div class="btn-group" role="group">
+								<a type="button" class="btn btn-link btn-sm active"><span class="glyphicon glyphicon-bold" aria-hidden="true"></span></a>
+								<a type="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-italic" aria-hidden="true"></span></a>
+								<a type="button" class="btn btn-link btn-sm"><span style="display:inline-block;width:16px;background:#ff0000">&nbsp;</span></a>
+								<a type="button" class="btn btn-link btn-sm"><span class="glyphicon glyphicon-text-size" aria-hidden="true"></span></a>
+								<a type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-font" aria-hidden="true"></span></a>
+
+								<a type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-align-left" aria-hidden="true"></span></a>
+							</div>
+							<textarea class="form-control" rows="3">Шубы!</textarea>
+						</div>
+					</div>
+					<div class="item logoedit">
+						<p class="lead">Лого</p>
+						<div class="size"></div>
+					</div>
+					<div class="item bgedit">
+						<p class="lead">Фон</p>
+						<div class="size"></div>
+					</div>
+-->
+				</div>
 				<div class="td img custom">
 					<table class="table">
 						<tr>
@@ -108,11 +137,11 @@
 						<tr>
 							<td class="bg">
 								<div class="icons"></div>
-								<p><button type="button" class="btn btn-default">+</button></p>
+								<p><button type="button" class="btn btn-default" data-type="bg" data-btn="newbg">+</button></p>
 							</td>
 							<td class="logo">
 								<div class="icons"></div>
-								<p><button type="button" class="btn btn-default">+</button></p>
+								<p><button type="button" class="btn btn-default" data-type="logo" data-btn="newlogo">+</button></p>
 							</td>
 						</tr>
 					</table>

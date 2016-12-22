@@ -76,7 +76,6 @@
 	height:400px;
 }
 
-
 #adedit .p3 .editbody {
 	width:100%;
 }
@@ -92,6 +91,7 @@
 	background-size:cover;
 	border:1px solid #999;
 	margin:0 auto 10px 0;
+	overflow:hidden;
 }
 
 #adedit .p3 .td {
@@ -108,7 +108,9 @@
 
 #adedit .p3 .img td, #adedit .p3 .img th {
 	text-align:center;
+	border-top:none !important;
 }
+
 
 #adedit .p3  .ico {
 	display:inline-block;
@@ -142,13 +144,23 @@
 	height:50px;
 }
 
-#adedit .p3  .logodrag {
-	position:absolute;
-	top:0;
-	left:0;
-	z-index:1;
+#adedit .p3 .hiddenfile {
+	display:none;
 }
 
-#adedit .p3  .logodrag img {
+
+#adedit .p3 .layers {
+	padding-right:10px;
+}
+
+#adedit .p3 .layers .layer {
+	padding:10px 0;
+	border-bottom:1px solid #eee;
+}
+
+#adedit .p3 .workarea .layer {
+	position:absolute;
+}
+#adedit .p3 .workarea img {
 	display:block;
 }
