@@ -27,8 +27,8 @@ $.widget("snark.adedit",{
 				setTimeout($.proxy(this.checkCollectionsLoaded,this),100);
 				return;
 			}
-		this.page1.Activate();
-		//this.page3.Activate("googlead",['b240x400']);
+		//this.page1.Activate();
+		this.page3.Activate("googlead",['b240x400']);
 	},
 
 
@@ -195,6 +195,9 @@ $.widget("snark.adedit",{
 			page.show();
 		}
 
+/*******************
+Editor instance
+********************/
 		function _Editor(templateid,parentobj){
 			var _templateid=templateid;
 			var _banner={}
@@ -251,6 +254,11 @@ $.widget("snark.adedit",{
 				_render()
 			}
 			
+			function _setActiveLayer(cnt){
+				_activeLayer=cnt;
+				_render();
+			}
+			
 			function _newImgStart(){
 				_container.find('#newimg')[0].form.reset();
 				$(_container.find('#newimg')).attr("data-type",$(this).attr('data-type')).click();
@@ -264,9 +272,9 @@ $.widget("snark.adedit",{
 							window.URL.createObjectURL(this.files[this.files.length-1])
 					);
 					bannersData.templates[_templateid][collection][type].push(i);
-					_banner[type].id=i;
-
 					_renderIcons();
+
+					_setImg(i,type);
 					_render();
 				}
 			}
@@ -282,9 +290,9 @@ $.widget("snark.adedit",{
 			}
 			
 			function _updateLayers(tData){
-				_layers=[_layerBg(_banner.bg,1),_layerLogo(_banner.logo,2)];
+				_layers=[_layerBg(_banner.bg,0),_layerLogo(_banner.logo,1)];
 				for(var cnt=0,m=tData.texts.length;cnt<m;cnt++)
-					_layers.push(_layerText(tData.texts[cnt],cnt+3));
+					_layers.push(_layerText(_banner.texts[cnt],cnt+2));
 			}
 			
 			function _render(){
@@ -318,9 +326,48 @@ $.widget("snark.adedit",{
 					_layers[cnt].renderItem(layers,cnt==_activeLayer);
 				}
 
-				//workarea.find('.logodrag').draggable({ disabled: (_lastClick!='logo') });
-				//workarea.find('.logodrag').draggable({ disabled: false });
-
+				if(_activeLayer>-1){
+//there is an active layer, let's drag it!
+					var draggableLayer=$(workarea.find('[data-id="'+_activeLayer+'"]'));
+					if(draggableLayer.length){
+						var dPosition=draggableLayer.position();
+						var dragger=$('<div></div>')
+							.addClass('dragger')
+							.draggable({
+								drag: function( event, ui ) {
+									var top=dPosition.top+ui.position.top;
+									var left=dPosition.left+ui.position.left;
+									draggableLayer.css({
+										left:left,
+										top:top
+									});
+								},
+								stop: function( event, ui ) {
+									var top=dPosition.top+ui.position.top;
+									var left=dPosition.left+ui.position.left;
+									draggableLayer.css({
+										left:left,
+										top:top
+									});
+									var id=draggableLayer.attr('data-id');
+									if(id==0){
+										_banner.bg.top=top;
+										_banner.bg.left=left;
+									} else if(id==1){
+										_banner.logo.top=top;
+										_banner.logo.left=left;									
+									} else {
+										_banner.texts[id-2].top=top;
+										_banner.texts[id-2].left=left;
+									}
+									//console.log(_banner);
+									_render();
+								}
+							})
+							.appendTo(workarea);
+						$('<span class="glyphicon glyphicon-move" aria-hidden="true"></span>').appendTo($('<div class="dragicon"></div>').appendTo(workarea));
+					}
+				}
 			}
 
 			function _fillImgs(collection,type){
@@ -338,19 +385,31 @@ $.widget("snark.adedit",{
 						.addClass('ico')
 						.css('backgroundImage','url('+imgs[arr[cnt]].img.src+')')
 						.appendTo(obj)
-						.on('click',_setImg);
+						.on('click',_onIcoClick);
 				return obj;			
 			}
 			
-			function _setImg(){
+			function _onIcoClick(){
 				var id=$(this).attr('data-id');
 				var type=$(this).attr('data-type');
-				
+				_setImg(id,type);
+			}
+			
+			function _setImg(id,type){
 				if(_banner[type].id==id){
-//switch off
+//switch off on click on active
 					_banner[type]={};				
 				} else {
 					_banner[type].id=id;
+				}
+				
+				switch(type){
+					case 'bg':
+						_activeLayer=0;
+					break;
+					case 'logo':
+						_activeLayer=1;
+					break;
 				}
 				
  				_render();
@@ -359,13 +418,23 @@ $.widget("snark.adedit",{
 			function _layerBg(data,cnt){
 				var _data=data;
 				var _cnt=cnt;
-				function _renderItem(container){
-					$('<div></div>').addClass('layer').html('Background').appendTo(container);
+				function _renderItem(container,isActive){
+					var item=$('<div></div>')
+						.addClass('layer')
+						.attr('data-id',_cnt)
+						.on('click',function(){
+							_setActiveLayer(_cnt)
+						})
+						.html('Background')
+						.appendTo(container);
+					if(isActive)
+						item.attr('data-sel',1);
 				}
-				function _render(container){
+				function _render(container,isActive){
 					if(_data.id && bannersData.images[data.id])
 						$(bannersData.images[data.id].img).clone().appendTo(
 							$('<div></div>')
+								.attr('data-id',_cnt)
 								.addClass('layer')
 								.css({
 									'z-index':_cnt,
@@ -384,14 +453,24 @@ $.widget("snark.adedit",{
 			function _layerLogo(data,cnt){
 				var _data=data;
 				var _cnt=cnt;
-				function _renderItem(container){
-					$('<div></div>').addClass('layer').html('Logo').appendTo(container);
+				function _renderItem(container,isActive){
+					var item=$('<div></div>')
+						.addClass('layer')
+						.attr('data-id',_cnt)
+						.on('click',function(){
+							_setActiveLayer(_cnt)
+						})
+						.html('Logo')
+						.appendTo(container);
+					if(isActive)
+						item.attr('data-sel',1);
 				}
-				function _render(container){
+				function _render(container,isActive){
 					if(_data.id && bannersData.images[data.id])
 						$(bannersData.images[data.id].img).clone().appendTo(
 							$('<div></div>')
 								.addClass('layer')
+								.attr('data-id',_cnt)
 								.css({
 									'z-index':_cnt,
 									'top':_data.top+'px',
@@ -410,14 +489,25 @@ $.widget("snark.adedit",{
 			function _layerText(data,cnt){
 				var _data=data;
 				var _cnt=cnt;
-				function _renderItem(container){
-					$('<div></div>').addClass('layer').html(_data.text).appendTo(container);
+				function _renderItem(container,isActive){
+					var item=$('<div></div>')
+						.addClass('layer')
+						.attr('data-id',_cnt)
+						.on('click',function(){
+							_setActiveLayer(_cnt)
+						})
+						.html(_data.text)
+						.appendTo(container);
+					if(isActive)
+						item.attr('data-sel',1);
+
 				}
-				function _render(container){
-					console.log(_data);
+				function _render(container,isActive){
+console.log(_data);
 					if(_data.text)
 						$('<div></div>')
-							.addClass('layer')
+							.addClass('layer text')
+							.attr('data-id',_cnt)
 							.css({
 								'z-index':_cnt,
 								'color':_data.color,
@@ -426,7 +516,7 @@ $.widget("snark.adedit",{
 								'text-align':_data.align,
 								'top':_data.top+'px',
 								'left':_data.left+'px'
-								})
+								})	
 							.html(_data.text)
 							.appendTo(container)
 				}
@@ -440,7 +530,9 @@ $.widget("snark.adedit",{
 				destroy:_destroy
 			}
 		}
-
+/***********************
+End of Editor
+************************/
 		
 		function _onButtonClick(){
 			switch($(this).attr("data-btn")){

@@ -156,11 +156,44 @@
 #adedit .p3 .layers .layer {
 	padding:10px 0;
 	border-bottom:1px solid #eee;
+	cursor:pointer;
 }
+
+#adedit .p3 .layers .layer[data-sel="1"] {
+	background-color:#d9edf7;
+}
+
 
 #adedit .p3 .workarea .layer {
 	position:absolute;
 }
+
+#adedit .p3 .workarea .layer.text {
+	width:100%;
+}
+
 #adedit .p3 .workarea img {
 	display:block;
+}
+
+#adedit .p3 .workarea .dragger {
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:10000;
+}
+
+#adedit .p3 .workarea .dragicon {
+	position:absolute;
+	bottom:0;
+	right:0;
+	background-color:#000000;
+	padding:4px;
+	z-index:9000;
+}
+#adedit .p3 .workarea .dragicon span {
+	color:#ffffff;
+	font-size:16px;
 }
