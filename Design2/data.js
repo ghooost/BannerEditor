@@ -30,6 +30,7 @@ bannersData={
 			name:"240x400",
 			w:240,
 			h:400,
+			bgcolor:"#000000",
 			texts:[
 					{
 						top:0,
@@ -57,6 +58,7 @@ bannersData={
 			name:"160x600",
 			w:160,
 			h:600,
+			bgcolor:"#000000",
 			texts:[],
 			sys:{
 				bg:[],
@@ -81,6 +83,7 @@ bannersData={
 			name:"468x60",
 			w:468,
 			h:60,
+			bgcolor:"#000000",
 			texts:[],
 			sys:{
 				bg:[],
@@ -105,6 +108,7 @@ bannersData={
 			name:"728x90",
 			w:728,
 			h:90,
+			bgcolor:"#000000",
 			texts:[],
 			sys:{
 				bg:[],

@@ -55,11 +55,22 @@ $.widget("snark.adedit",{
 			loaded:false
 		});
 		var cnt=bannersData.images.length-1;
-		img.addEventListener('load',function(){
+ 	 	$(img).on('load',function(){
+			var w=this.width;
+			var h=this.height;
 			bannersData.images[cnt].loaded=true;
-			bannersData.images[cnt].width=this.width;
-			bannersData.images[cnt].height=this.height;
-		});
+			bannersData.images[cnt].width=w;
+			bannersData.images[cnt].height=h;
+			var canvas=$('<canvas></canvas>').attr({
+					width:w,
+					height:h
+				});
+			var context=canvas.get(0).getContext("2d")
+			context.drawImage(this,0,0);
+			this.src=canvas.get(0).toDataURL();
+
+			$(this).off();
+ 	 	})
 		img.src=src;
 		return cnt;
 	},
@@ -205,6 +216,11 @@ Editor instance
 			var _activeLayer=-1;
 			var _layers=[];
 			
+			var _BGCOLORID=0;
+			var _BGID=1;
+			var _LOGOID=2;
+			var _TXTSTART=3;
+			
 			_init(parentobj);
 
 			 function _init(parentobj){
@@ -289,12 +305,6 @@ Editor instance
 				_fillImgs('sys','logo');
 			}
 			
-			function _updateLayers(tData){
-				_layers=[_layerBg(_banner.bg,0),_layerLogo(_banner.logo,1)];
-				for(var cnt=0,m=tData.texts.length;cnt<m;cnt++)
-					_layers.push(_layerText(_banner.texts[cnt],cnt+2));
-			}
-			
 			function _render(){
 
 //mark selected icons
@@ -319,17 +329,25 @@ Editor instance
 				layers.empty();
 
 //buuld layers
-				_updateLayers(tData);
+				//_layers=[_layerBgColor(_banner,_BGCOLORID,_activeLayer)];
+				_layers=[];
+//				if(_banner.bg.id)
+				_layers.push(_layerBg(_banner.bg,_BGID,_activeLayer));
+				if(_banner.logo.id)
+					_layers.push(_layerLogo(_banner.logo,_LOGOID,_activeLayer));
+
+				for(var cnt=0,m=_banner.texts.length;cnt<m;cnt++)
+					_layers.push(_layerText(_banner.texts[cnt],cnt+_TXTSTART,_activeLayer));
 				
 				for(var cnt=0,m=_layers.length;cnt<m;cnt++){
-					_layers[cnt].render(workarea,cnt==_activeLayer);
-					_layers[cnt].renderItem(layers,cnt==_activeLayer);
+					_layers[cnt].render(workarea);
+					_layers[cnt].renderItem(layers);
 				}
 
 				if(_activeLayer>-1){
 //there is an active layer, let's drag it!
 					var draggableLayer=$(workarea.find('[data-id="'+_activeLayer+'"]'));
-					if(draggableLayer.length){
+					if(draggableLayer.length && draggableLayer.attr('data-draggable')){
 						var dPosition=draggableLayer.position();
 						var dragger=$('<div></div>')
 							.addClass('dragger')
@@ -350,15 +368,15 @@ Editor instance
 										top:top
 									});
 									var id=draggableLayer.attr('data-id');
-									if(id==0){
+									if(id==_BGID){
 										_banner.bg.top=top;
 										_banner.bg.left=left;
-									} else if(id==1){
+									} else if(id==_LOGOID){
 										_banner.logo.top=top;
 										_banner.logo.left=left;									
 									} else {
-										_banner.texts[id-2].top=top;
-										_banner.texts[id-2].left=left;
+										_banner.texts[id-_TXTSTART].top=top;
+										_banner.texts[id-_TXTSTART].left=left;
 									}
 									//console.log(_banner);
 									_render();
@@ -399,42 +417,74 @@ Editor instance
 				if(_banner[type].id==id){
 //switch off on click on active
 					_banner[type]={};				
+//drop selection if it isn't a bg layer
+					if(type!='bg'){
+						_activeLayer=-1;
+					} else {
+						_activeLayer=_BGID;
+					};
 				} else {
 					_banner[type].id=id;
+
+					switch(type){
+						case 'bg':
+							_activeLayer=_BGID;
+						break;
+						case 'logo':
+							_activeLayer=_LOGOID;
+						break;
+					}
 				}
-				
-				switch(type){
-					case 'bg':
-						_activeLayer=0;
-					break;
-					case 'logo':
-						_activeLayer=1;
-					break;
-				}
-				
  				_render();
 			}
-			
-			function _layerBg(data,cnt){
+			function _layerBg(data,cnt,activeLayer){
 				var _data=data;
 				var _cnt=cnt;
-				function _renderItem(container,isActive){
+				var _isActive=(cnt==activeLayer);
+				var _img=null;
+				function _renderItem(container){
 					var item=$('<div></div>')
 						.addClass('layer')
+						.html('Фон')
 						.attr('data-id',_cnt)
-						.on('click',function(){
-							_setActiveLayer(_cnt)
-						})
-						.html('Background')
 						.appendTo(container);
-					if(isActive)
+
+					if(_isActive){
 						item.attr('data-sel',1);
+						if(_data.id){
+							$('<div></div>').addClass('scaleslide').appendTo(item).slider({
+      							orientation: "horizontal",
+				    			range: "min",
+      							max: 100,
+      							min: 1,
+      							value: _data.scale,
+      							slide: _scale,
+      							change: _scale
+							});
+						}
+					} else {
+						item.on('click',function(){
+							_setActiveLayer(_cnt)
+						});
+					}
 				}
-				function _render(container,isActive){
+				function _scale(){
+					_data.scale=$(this).slider( "value")	
+					_img.css({
+						'transform': 'scale('+_data.scale/100+')'
+					})
+				}
+				function _render(container){
+					if(!_data.scale) _data.scale=100;
+
 					if(_data.id && bannersData.images[data.id])
-						$(bannersData.images[data.id].img).clone().appendTo(
-							$('<div></div>')
-								.attr('data-id',_cnt)
+						_img=$(bannersData.images[data.id].img).clone()
+							.css({
+								'transform': 'scale('+_data.scale/100+')'
+							})
+							.appendTo(
+								$('<div></div>')
+								.attr({'data-id':_cnt,'data-draggable':1})
 								.addClass('layer')
 								.css({
 									'z-index':_cnt,
@@ -450,27 +500,55 @@ Editor instance
 				}
 			}
 
-			function _layerLogo(data,cnt){
+			function _layerLogo(data,cnt,activeLayer){
 				var _data=data;
 				var _cnt=cnt;
-				function _renderItem(container,isActive){
+				var _isActive=(cnt==activeLayer);
+				var _img=null;
+				function _renderItem(container){
 					var item=$('<div></div>')
 						.addClass('layer')
+						.html('Лого')
 						.attr('data-id',_cnt)
-						.on('click',function(){
-							_setActiveLayer(_cnt)
-						})
-						.html('Logo')
 						.appendTo(container);
-					if(isActive)
+
+					if(_isActive){
 						item.attr('data-sel',1);
+						if(_data.id){
+							$('<div></div>').addClass('scaleslide').appendTo(item).slider({
+      							orientation: "horizontal",
+				    			range: "min",
+      							max: 100,
+      							min: 1,
+      							value: _data.scale,
+      							slide: _scale,
+      							change: _scale
+							});
+						}
+					} else {
+						item.on('click',function(){
+							_setActiveLayer(_cnt)
+						});
+					}
 				}
-				function _render(container,isActive){
+				function _scale(){
+					_data.scale=$(this).slider( "value")	
+					_img.css({
+						'transform': 'scale('+_data.scale/100+')'
+					})
+				}
+				function _render(container){
+					if(!_data.scale) _data.scale=100;
+
 					if(_data.id && bannersData.images[data.id])
-						$(bannersData.images[data.id].img).clone().appendTo(
-							$('<div></div>')
+						_img=$(bannersData.images[data.id].img).clone()
+							.css({
+								'transform': 'scale('+_data.scale/100+')'
+							})
+							.appendTo(
+								$('<div></div>')
+								.attr({'data-id':_cnt,'data-draggable':1})
 								.addClass('layer')
-								.attr('data-id',_cnt)
 								.css({
 									'z-index':_cnt,
 									'top':_data.top+'px',
@@ -478,7 +556,6 @@ Editor instance
 									})
 								.appendTo(container)
 						);
-					
 				}
 				return {
 					renderItem:_renderItem,
@@ -486,9 +563,11 @@ Editor instance
 				}
 			}
 
-			function _layerText(data,cnt){
+			function _layerText(data,cnt,activeLayer){
 				var _data=data;
 				var _cnt=cnt;
+				var _isActive=(cnt==activeLayer);
+
 				function _renderItem(container,isActive){
 					var item=$('<div></div>')
 						.addClass('layer')
@@ -498,16 +577,15 @@ Editor instance
 						})
 						.html(_data.text)
 						.appendTo(container);
-					if(isActive)
+					if(_isActive)
 						item.attr('data-sel',1);
 
 				}
 				function _render(container,isActive){
-console.log(_data);
 					if(_data.text)
 						$('<div></div>')
 							.addClass('layer text')
-							.attr('data-id',_cnt)
+							.attr({'data-id':_cnt,'data-draggable':1})
 							.css({
 								'z-index':_cnt,
 								'color':_data.color,

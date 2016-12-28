@@ -154,9 +154,10 @@
 }
 
 #adedit .p3 .layers .layer {
-	padding:10px 0;
+	padding:10px;
 	border-bottom:1px solid #eee;
 	cursor:pointer;
+	box-sizing:border-box;
 }
 
 #adedit .p3 .layers .layer[data-sel="1"] {
@@ -174,6 +175,10 @@
 
 #adedit .p3 .workarea img {
 	display:block;
+	-ms-transform-origin: 50% 50%;
+  	-webkit-transform-origin: 50% 50%;
+  	-moz-transform-origin: 50% 50%;
+  	transform-origin: 50% 50%;
 }
 
 #adedit .p3 .workarea .dragger {
@@ -196,4 +201,8 @@
 #adedit .p3 .workarea .dragicon span {
 	color:#ffffff;
 	font-size:16px;
+}
+
+.scaleslide {
+	margin:1em 0.5em 0.5em 0.5em;
 }
