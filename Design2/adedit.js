@@ -7,15 +7,15 @@ $.widget("snark.adedit",{
 		this.page2.init(this);
 		this.page3.init(this);
 
-
 		bannersData.images=[];
-		for(var o in bannersData.templates){
-			var tData=bannersData.templates[o];
-			this.imageCollectionAdd(tData.sys.bg);
-			this.imageCollectionAdd(tData.sys.logo);
-			this.imageCollectionAdd(tData.custom.bg);
-			this.imageCollectionAdd(tData.custom.logo);
-		}
+			for(var o in bannersData.templates)
+				if(bannersData.templates[o]){
+					var tData=bannersData.templates[o];
+					this.imageCollectionAdd(tData.sys.bg);
+					this.imageCollectionAdd(tData.sys.logo);
+					this.imageCollectionAdd(tData.custom.bg);
+					this.imageCollectionAdd(tData.custom.logo);
+				}
 
 		this.checkCollectionsLoaded();
 	},
@@ -27,8 +27,8 @@ $.widget("snark.adedit",{
 				setTimeout($.proxy(this.checkCollectionsLoaded,this),100);
 				return;
 			}
-		//this.page1.Activate();
-		this.page3.Activate("googlead",['b240x400']);
+		this.page1.Activate();
+		//this.page3.Activate("googlead",['b240x400']);
 	},
 
 
@@ -65,12 +65,15 @@ $.widget("snark.adedit",{
 					width:w,
 					height:h
 				});
-			var context=canvas.get(0).getContext("2d")
-			context.drawImage(this,0,0);
-			this.src=canvas.get(0).toDataURL();
-
+			try {
+				var context=canvas.get(0).getContext("2d");
+				context.drawImage(this,0,0);
+				this.src=canvas.get(0).toDataURL();
+			} catch (e){
+				console.log(e.message);
+			}
 			$(this).off();
- 	 	})
+ 	 	});
 		img.src=src;
 		return cnt;
 	},
@@ -78,7 +81,7 @@ $.widget("snark.adedit",{
 	globalVar:function(name,value){
 		var g=this.gdatavar;
 		if(!window[g]) window[g]={};
-		if(value==undefined){
+		if(value===undefined){
 //get		
 			value=window[g][name];
 		} else {
@@ -111,11 +114,12 @@ $.widget("snark.adedit",{
 		function _init(plugin){
 			_plugin=plugin;
 			var place=$(_plugin.element.find('.p1 .buttons')).empty();
-			for(var id in bannersData.systems){
-				var o=bannersData.systems[id];
-				var ele=$('<button type="button" class="btn btn-primary btn-lg btn-block" data-id="'+id+'">'+o.name+'</button>').appendTo(place);
-				ele.on('click',_onClick);
-			}
+			for(var id in bannersData.systems)
+				if(bannersData.systems[id]){
+					var o=bannersData.systems[id];
+					var ele=$('<button type="button" class="btn btn-primary btn-lg btn-block" data-id="'+id+'">'+o.name+'</button>').appendTo(place);
+					ele.on('click',_onClick);
+				}
 		}
 		function _onClick(){
 			_plugin.setPage(2,$(this).attr("data-id"));
@@ -126,7 +130,7 @@ $.widget("snark.adedit",{
 		return {
 			init:_init,
 			Activate:_Activate
-		}
+		};
 	}(),
 
 	page2:function(){
@@ -179,7 +183,7 @@ $.widget("snark.adedit",{
 		return {
 			init:_init,
 			Activate:_Activate
-		}
+		};
 	}(),
 	
 	page3:function(){
@@ -211,38 +215,42 @@ Editor instance
 ********************/
 		function _Editor(templateid,parentobj){
 			var _templateid=templateid;
-			var _banner={}
+			var _banner={};
 			var _container=null;
 			var _activeLayer=-1;
 			var _layers=[];
 			
-			var _BGCOLORID=0;
+			//var _BGCOLORID=0;
 			var _BGID=1;
 			var _LOGOID=2;
 			var _TXTSTART=3;
 			
-			_init(parentobj);
+			_initEditor(parentobj);
 
-			 function _init(parentobj){
+			 function _initEditor(parentobj){
+				var o='';
 				var tData=bannersData.templates[_templateid];
 				_banner={
-					name:tData['name'],
-					w:tData['w'],
-					h:tData['h'],
+					name:tData.name,
+					w:tData.w,
+					h:tData.h,
 					texts:[],
 					bg:{},
 					logo:{}
-				}
+				};
 				for(var cnt=0,m=tData.texts.length;cnt<m;cnt++){
 					var loc={};
-					for(var o in tData.texts[cnt])
-						loc[o]=tData.texts[cnt][o];
+					for(o in tData.texts[cnt])
+						if(tData.texts[cnt])
+							loc[o]=tData.texts[cnt][o];
 					_banner.texts.push(loc);
 				}
-				for(var o in tData.bg)
-					_banner.bg[o]=tData.bg[o];
-				for(var o in tData.logo)
-					_banner.logo[o]=tData.logo[o];
+				for(o in tData.bg)
+					if(tData.bg[o])
+						_banner.bg[o]=tData.bg[o];
+				for(o in tData.logo)
+					if(tData.logo[o])
+						_banner.logo[o]=tData.logo[o];
 
 				if(tData.w>tData.h){
 //use landscape template
@@ -265,9 +273,9 @@ Editor instance
 				_container.find('[data-btn="newbg"]').on('click',_newImgStart);
 				_container.find('#newimg').on('change',_newImgChoose);
 				
-				_renderIcons()
+				_renderIcons();
 
-				_render()
+				_render();
 			}
 			
 			function _setActiveLayer(cnt){
@@ -315,14 +323,14 @@ Editor instance
 					_container.find('.ico[data-id="'+_banner.logo.id+'"]').attr('data-sel','1');
 
 
-				var bgImg=(_banner.bg.id!=undefined)?bannersData.images[_banner.bg.id]:{loaded:true};
-				var logoImg=(_banner.logo.id!=undefined)?bannersData.images[_banner.logo.id]:{loaded:true};
+				var bgImg=(_banner.bg.id!==undefined)?bannersData.images[_banner.bg.id]:{loaded:true};
+				var logoImg=(_banner.logo.id!==undefined)?bannersData.images[_banner.logo.id]:{loaded:true};
 
 //if images aren't loaded - try to wait a bit
 				if(!bgImg.loaded || !logoImg.loaded)
 					return setTimeout($.proxy(_render,this),100);
 
-				var tData=bannersData.templates[_templateid];
+				//var tData=bannersData.templates[_templateid];
 				var workarea=$(_container.find('.workarea'));
 				workarea.empty();
 				var layers=$(_container.find('.layers'));
@@ -339,7 +347,7 @@ Editor instance
 				for(var cnt=0,m=_banner.texts.length;cnt<m;cnt++)
 					_layers.push(_layerText(_banner.texts[cnt],cnt+_TXTSTART,_activeLayer));
 				
-				for(var cnt=0,m=_layers.length;cnt<m;cnt++){
+				for(cnt=0,m=_layers.length;cnt<m;cnt++){
 					_layers[cnt].render(workarea);
 					_layers[cnt].renderItem(layers);
 				}
@@ -349,7 +357,7 @@ Editor instance
 					var draggableLayer=$(workarea.find('[data-id="'+_activeLayer+'"]'));
 					if(draggableLayer.length && draggableLayer.attr('data-draggable')){
 						var dPosition=draggableLayer.position();
-						var dragger=$('<div></div>')
+						$('<div></div>')
 							.addClass('dragger')
 							.draggable({
 								drag: function( event, ui ) {
@@ -422,7 +430,7 @@ Editor instance
 						_activeLayer=-1;
 					} else {
 						_activeLayer=_BGID;
-					};
+					}
 				} else {
 					_banner[type].id=id;
 
@@ -464,15 +472,15 @@ Editor instance
 						}
 					} else {
 						item.on('click',function(){
-							_setActiveLayer(_cnt)
+							_setActiveLayer(_cnt);
 						});
 					}
 				}
 				function _scale(){
-					_data.scale=$(this).slider( "value")	
+					_data.scale=$(this).slider( "value");	
 					_img.css({
 						'transform': 'scale('+_data.scale/100+')'
-					})
+					});
 				}
 				function _render(container){
 					if(!_data.scale) _data.scale=100;
@@ -497,7 +505,7 @@ Editor instance
 				return {
 					renderItem:_renderItem,
 					render:_render
-				}
+				};
 			}
 
 			function _layerLogo(data,cnt,activeLayer){
@@ -527,15 +535,15 @@ Editor instance
 						}
 					} else {
 						item.on('click',function(){
-							_setActiveLayer(_cnt)
+							_setActiveLayer(_cnt);
 						});
 					}
 				}
 				function _scale(){
-					_data.scale=$(this).slider( "value")	
+					_data.scale=$(this).slider( "value");	
 					_img.css({
 						'transform': 'scale('+_data.scale/100+')'
-					})
+					});
 				}
 				function _render(container){
 					if(!_data.scale) _data.scale=100;
@@ -560,7 +568,7 @@ Editor instance
 				return {
 					renderItem:_renderItem,
 					render:_render
-				}
+				};
 			}
 
 			function _layerText(data,cnt,activeLayer){
@@ -568,12 +576,12 @@ Editor instance
 				var _cnt=cnt;
 				var _isActive=(cnt==activeLayer);
 
-				function _renderItem(container,isActive){
+				function _renderItem(container){
 					var item=$('<div></div>')
 						.addClass('layer')
 						.attr('data-id',_cnt)
 						.on('click',function(){
-							_setActiveLayer(_cnt)
+							_setActiveLayer(_cnt);
 						})
 						.html(_data.text)
 						.appendTo(container);
@@ -581,7 +589,7 @@ Editor instance
 						item.attr('data-sel',1);
 
 				}
-				function _render(container,isActive){
+				function _render(container){
 					if(_data.text)
 						$('<div></div>')
 							.addClass('layer text')
@@ -596,17 +604,17 @@ Editor instance
 								'left':_data.left+'px'
 								})	
 							.html(_data.text)
-							.appendTo(container)
+							.appendTo(container);
 				}
 				return {
 					renderItem:_renderItem,
 					render:_render
-				}
+				};
 			}
 			
 			return {
 				destroy:_destroy
-			}
+			};
 		}
 /***********************
 End of Editor
@@ -623,7 +631,7 @@ End of Editor
 		return {
 			init:_init,
 			Activate:_Activate
-		}
+		};
 	}(),
 		
 	test:function(str){
